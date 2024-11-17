@@ -1,101 +1,128 @@
-import Image from "next/image";
+"use client";
+
+import { Suspense, useEffect, useState } from "react";
+import Menu from "./components/menu";
+import { getPages, getPage, createPage, updatePage } from "./actions";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [pages, setPages] = useState<
+    Record<number, { title: string; content: string }>
+  >({});
+  const [nowId, setNowId] = useState<number>(0);
+  const [nowTitle, setNowTitle] = useState<string>("");
+  const [nowContent, setNowContent] = useState<string>("");
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const getPagesAndSet = async (id: number) => {
+      const res = await getPages();
+      if (res) {
+        const newPages = Object.fromEntries(
+          res.map(({ id, title, content }) => [id, { title, content }])
+        );
+        setPages(newPages);
+        const nowPage = await getPage(id);
+        if (nowPage) {
+          setNowTitle(nowPage.title);
+          setNowContent(nowPage.content);
+        }
+      }
+    };
+    getPagesAndSet(nowId);
+  }, [nowId]);
+
+  async function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!nowId) {
+      window.alert("Please select a page first!");
+      return;
+    }
+    const newTitle = e.target.value;
+    setNowTitle(newTitle);
+
+    setPages((prevPages) => ({
+      ...prevPages,
+      [nowId]: { title: newTitle, content: nowContent },
+    }));
+  }
+
+  async function handleContentChange(
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) {
+    if (!nowId) {
+      window.alert("Please select a page first!");
+      return;
+    }
+    const newContent = e.target.value;
+    setNowContent(newContent);
+  }
+
+  async function handleTitleBlur(e: React.ChangeEvent<HTMLInputElement>) {
+    if (!nowId) {
+      return;
+    }
+    const newTitle = e.target.value;
+    setNowTitle(newTitle);
+    await updatePage(nowId, newTitle, nowContent);
+    setPages((prevPages) => ({
+      ...prevPages,
+      [nowId]: { title: newTitle, content: nowContent },
+    }));
+  }
+
+  async function handleContentBlur(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    if (!nowId) {
+      return;
+    }
+    const newContent = e.target.value;
+    setNowContent(newContent);
+    await updatePage(nowId, nowTitle, newContent);
+  }
+
+  const addPage = async () => {
+    const res = await createPage();
+    setPages((prevPages) => ({
+      ...prevPages,
+      [res.id]: { title: res.title, content: "" },
+    }));
+    setNowId(res.id);
+    setNowTitle(res.title);
+    setNowContent(res.content);
+  };
+
+  const selectPage = (id: number) => {
+    setNowId(id);
+    setNowTitle(pages[id]?.title || "");
+    setNowContent(pages[id]?.content || "");
+  };
+  return (
+    <div className="flex">
+      <Menu
+        pageIDs={Object.keys(pages).map(Number)}
+        titles={Object.fromEntries(
+          Object.entries(pages).map(([id, { title }]) => [id, title])
+        )}
+        nowId={nowId}
+        setNowId={selectPage}
+        addPage={addPage}
+      />
+
+      <div className="flex justify-center w-full">
+        <div className="w-3/5 max-w-screen-lg py-32">
+          <input
+            className="text-4xl font-bold block mb-4 border-[none] w-full"
+            placeholder="제목"
+            value={nowTitle}
+            onChange={handleTitleChange}
+            onBlur={handleTitleBlur}
+          />
+          <textarea
+            className="text-lg leading-7 block px-0 py-2 border-[none] w-full min-h-96"
+            placeholder="Start with typing your text! "
+            value={nowContent}
+            onChange={handleContentChange}
+            onBlur={handleContentBlur}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
