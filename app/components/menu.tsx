@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 
 export default function Menu({
   pageIDs,
@@ -18,6 +19,8 @@ export default function Menu({
   const handlePageSelect = (id: number) => {
     setNowId(id);
   };
+  const { data } = useSession();
+  console.log(data);
 
   return (
     <div className="w-60 min-h-screen bg-[rgb(247,247,245)] p-2">
@@ -31,7 +34,7 @@ export default function Menu({
             className="h-full w-auto object-contain rounded"
             src="/profile.jpg"
           />
-          <div>Jimin Ha</div>
+          <div>{data?.user?.name}</div>
         </div>
       </div>
       <div className="mb-8">
