@@ -7,7 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown, MoreHorizontal, Star } from "lucide-react";
+import { ChevronDown, MoreHorizontal } from "lucide-react";
 import { FaStar } from "react-icons/fa";
 import Image from "next/image";
 import { Session } from "next-auth";
@@ -36,6 +36,9 @@ export default function Menu({
   const handlePageSelect = (id: number) => {
     setNowId(id);
   };
+
+  const pinnedPages = pageIDs.filter((id) => pins[id]);
+  const unpinnedPages = pageIDs.filter((id) => !pins[id]);
 
   return (
     <div className="w-60 min-h-screen bg-[rgb(247,247,245)] p-2">
@@ -68,7 +71,7 @@ export default function Menu({
         </div>
       </div>
       <div className="mb-8">
-        {pageIDs.map((id: number) => (
+        {[...pinnedPages, ...unpinnedPages].map((id: number) => (
           <div
             key={id}
             className={`flex justify-between items-center h-8 text-sm font-semibold text-[#888888] cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 hover:bg-[#ddd] ${
@@ -77,7 +80,11 @@ export default function Menu({
             onClick={() => handlePageSelect(id)}
           >
             <button onClick={() => switchPin(id)}>
-              {pins[id] ? <FaStar /> : <Star />}
+              {pins[id] ? (
+                <FaStar className="text-yellow-400 hover:opacity-50" />
+              ) : (
+                <FaStar className="text-transparent hover:text-yellow-400" />
+              )}
             </button>
             {titles[id] || "Untitled"}
             <DropdownMenu>
