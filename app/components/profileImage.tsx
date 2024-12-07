@@ -13,19 +13,28 @@ import {
 import { Button } from "@/components/ui/button";
 
 export default function ProfileImage({ id }: { id?: string }) {
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    "/profile.jpg"
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // 사용자 프로필 이미지 로드
   useEffect(() => {
     async function fetchProfileImage() {
+      if (!id) return;
+
       try {
         const response = await fetch(`/api/profile-image/${id}`);
         if (response.ok) {
           const data = await response.json();
-          setPreviewImage(data.image || "/profile.jpg");
+          if (data.success && data.image) {
+            setPreviewImage(data.image);
+          } else {
+            console.error("Failed to fetch profile image:", data.error);
+            setPreviewImage("/profile.jpg");
+          }
         } else {
-          throw new Error("Failed to fetch profile image.");
+          console.error("Failed to fetch profile image:", response.statusText);
+          setPreviewImage("/profile.jpg");
         }
       } catch (error) {
         console.error("Error fetching profile image:", error);
@@ -45,18 +54,28 @@ export default function ProfileImage({ id }: { id?: string }) {
   };
 
   const handleUpload = async () => {
-    if (!selectedFile) {
+    if (!selectedFile || !id) {
       alert("Please select a file first.");
       return;
     }
 
     try {
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+      const toBase64 = (file: File) =>
+        new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = (error) => reject(error);
+          reader.readAsDataURL(file);
+        });
+
+      const base64Image = await toBase64(selectedFile);
 
       const response = await fetch(`/api/upload/profile/${id}`, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ image: base64Image }),
       });
 
       if (!response.ok) {
@@ -66,12 +85,12 @@ export default function ProfileImage({ id }: { id?: string }) {
       const data = await response.json();
       if (data.success) {
         alert("Profile image uploaded successfully!");
-        setPreviewImage(`/api/profile-image/${id}`);
+        setPreviewImage(base64Image);
       } else {
         throw new Error(data.error || "Failed to upload profile image.");
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error uploading profile image:", error);
       alert("An error occurred while uploading the profile image.");
     }
   };
