@@ -1,3 +1,5 @@
+"use client";
+
 import { signOut } from "next-auth/react";
 import {
   DropdownMenu,
@@ -9,9 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import { FaStar } from "react-icons/fa";
-import Image from "next/image";
 import { Session } from "next-auth";
 import { deletePage } from "../actions";
+import ProfileImage from "./profileImage";
 
 export default function Menu({
   pageIDs,
@@ -44,16 +46,8 @@ export default function Menu({
     <div className="w-60 min-h-screen bg-[rgb(247,247,245)] p-2">
       <div className="mb-4">
         <div className="flex items-center gap-2 h-10 text-sm font-medium px-4 py-2">
-          <Image
-            alt="Profile Pic"
-            width={40}
-            height={40}
-            loading="lazy"
-            className="h-full w-auto object-contain rounded"
-            src="/profile.jpg"
-          />
+          <ProfileImage id={session?.user?.id} />
           <div>{session?.user?.username}</div>
-          {/* logout button as dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger>
               <ChevronDown />
