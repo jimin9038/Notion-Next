@@ -69,3 +69,90 @@ export async function deletePage(id: number) {
     where: { id },
   });
 }
+
+export async function createComment(pageId: number, content: string) {
+  const session = await auth();
+  if (!session || !session.user || !session.user.id) {
+    redirect("/signIn");
+  }
+
+  try {
+    if (!pageId) {
+      
+    }
+    return await db.comment.create({
+      data: {
+        content,
+        pageId,
+        userId: Number(session.user.id),
+      },
+    });
+  } catch (error) {
+    console.error("Error creating comment:", error);
+    throw new Error("Failed to create comment");
+  }
+}
+
+export async function getComments(pageId: number) {
+  try {
+    return await db.comment.findMany({
+      where: { pageId },
+      include: {
+        user: { select: { username: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    });
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    throw new Error("Failed to fetch comments");
+  }
+}
+
+export async function updateComment(commentId: number, content: string) {
+  const session = await auth();
+  if (!session || !session.user || !session.user.id) {
+    redirect("/signIn");
+  }
+
+  try {
+    const comment = await db.comment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment || comment.userId !== Number(session.user.id)) {
+      throw new Error("Not authorized to update this comment");
+    }
+
+    return await db.comment.update({
+      where: { id: commentId },
+      data: { content },
+    });
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    throw new Error("Failed to update comment");
+  }
+}
+
+export async function deleteComment(commentId: number) {
+  const session = await auth();
+  if (!session || !session.user || !session.user.id) {
+    redirect("/signIn");
+  }
+
+  try {
+    const comment = await db.comment.findUnique({
+      where: { id: commentId },
+    });
+
+    if (!comment || comment.userId !== Number(session.user.id)) {
+      throw new Error("Not authorized to delete this comment");
+    }
+
+    return await db.comment.delete({
+      where: { id: commentId },
+    });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    throw new Error("Failed to delete comment");
+  }
+}

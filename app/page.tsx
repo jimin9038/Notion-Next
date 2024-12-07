@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Menu from "./components/menu";
+import Menu from "./_components/menu";
 import {
   getPages,
   getPage,
@@ -10,6 +10,7 @@ import {
   deletePage,
 } from "./actions";
 import { useSession } from "next-auth/react";
+import Comment from "@/app/_components/Comment";
 
 export default function Home() {
   const [pages, setPages] = useState<
@@ -157,6 +158,7 @@ export default function Home() {
             onBlur={handleContentBlur}
           />
         </div>
+        <Comment pageId={nowId} />
       </div>
     </div>
   );
