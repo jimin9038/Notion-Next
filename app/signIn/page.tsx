@@ -1,21 +1,27 @@
-import { signIn } from "@/app/auth";
-import { redirect } from "next/navigation";
+"use client";
+
+import { signIn } from "next-auth/react";
 
 export default function SignIn() {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const username = formData.get("username") as string;
+    const password = formData.get("password") as string;
+    await signIn("credentials", {
+      username,
+      password,
+    });
+    window.location.href = "/";
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-center text-gray-900">
           Sign In
         </h2>
-        <form
-          className="mt-8 space-y-6"
-          action={async (formData) => {
-            "use server";
-            await signIn("credentials", formData);
-            redirect("/");
-          }}
-        >
+        <form className="mt-8 space-y-6" onSubmit={onSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="username" className="sr-only">

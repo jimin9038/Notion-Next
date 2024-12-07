@@ -40,7 +40,12 @@ export async function getPages() {
   return await db.page.findMany();
 }
 
-export async function updatePage(id: number, title: string, content: string) {
+export async function updatePage(
+  id: number,
+  title: string,
+  content: string,
+  pin: boolean
+) {
   const session = await auth();
   if (!session) {
     throw new Error("Not authenticated");
@@ -50,6 +55,7 @@ export async function updatePage(id: number, title: string, content: string) {
     data: {
       title,
       content,
+      pin,
     },
   });
 }
