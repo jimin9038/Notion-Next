@@ -50,7 +50,6 @@ export default function FormPage() {
         alert("Registration Failed. Please try again.");
         return;
       }
-      // Process response here
       alert("Registration Successful!");
       window.location.href = "/signIn";
     } catch (error) {

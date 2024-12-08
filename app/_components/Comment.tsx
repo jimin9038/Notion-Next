@@ -18,7 +18,6 @@ export default function Comment({ pageId }: CommentProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>("");
 
-  // Fetch comments for the current page
   useEffect(() => {
     async function fetchComments() {
       if (!pageId) return;

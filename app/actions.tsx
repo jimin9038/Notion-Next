@@ -181,7 +181,6 @@ export async function getSettings() {
   }
 }
 
-// Update the user's theme and font settings
 export async function updateSettings(theme: string, font: string) {
   const session = await auth();
   if (!session || !session.user || !session.user.id) {

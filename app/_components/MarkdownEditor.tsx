@@ -18,10 +18,6 @@ interface EditorProps {
   id: number;
 }
 
-/**
- * A Markdown editor component built with MDXEditor.
- * Supports live content updates and blur event handling.
- */
 const MarkdownEditor: FC<EditorProps> = ({
   markdown,
   onChange,
