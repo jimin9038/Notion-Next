@@ -1,11 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Menu from "./_components/menu";
 import { getPages, createPage, updatePage, deletePage } from "./actions";
 import { useSession } from "next-auth/react";
 import Comment from "@/app/_components/Comment";
 import Setting from "./_components/Setting";
+import dynamic from "next/dynamic";
+
+const EditorComp = dynamic(() => import("@/app/_components/MarkdownEditor"), {
+  ssr: false,
+});
 
 export default function Home() {
   const [pages, setPages] = useState<
@@ -56,14 +61,11 @@ export default function Home() {
     }));
   }
 
-  async function handleContentChange(
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) {
+  async function handleContentChange(newContent: string) {
     if (!nowId) {
       window.alert("Please select a page first!");
       return;
     }
-    const newContent = e.target.value;
     setNowContent(newContent);
   }
 
@@ -80,13 +82,12 @@ export default function Home() {
     }));
   }
 
-  async function handleContentBlur(e: React.ChangeEvent<HTMLTextAreaElement>) {
+  async function handleContentBlur() {
     if (!nowId) {
       return;
     }
-    const newContent = e.target.value;
-    setNowContent(newContent);
-    await updatePage(nowId, nowTitle, newContent, nowPin);
+    setNowContent(nowContent);
+    await updatePage(nowId, nowTitle, nowContent, nowPin);
   }
 
   const addPage = async () => {
@@ -122,11 +123,17 @@ export default function Home() {
     }
   };
 
-  const selectPage = (id: number) => {
-    setNowId(id);
-    setNowTitle(pages[id]?.title || "");
-    setNowContent(pages[id]?.content || "");
-    setNowPin(pages[id]?.pin || false);
+  const selectPage = async (id: number) => {
+    const updatedPage = await getPages().then((res) =>
+      res.find((page) => page.id === id)
+    );
+
+    if (updatedPage) {
+      setNowId(updatedPage.id);
+      setNowTitle(updatedPage.title);
+      setNowContent(updatedPage.content);
+      setNowPin(updatedPage.pin);
+    }
   };
 
   const updatePin = async (id: number) => {
@@ -168,23 +175,30 @@ export default function Home() {
         <div className="flex justify-center w-full">
           <div className="w-3/5 max-w-screen-lg py-32">
             <input
-              className="text-4xl font-bold block mb-4 border-[none] w-full dark:bg-slate-800 dark:text-white"
+              className="outline-none text-4xl font-bold block mb-4 border-[none] w-full dark:bg-slate-800 dark:text-white"
               placeholder="제목"
               value={nowTitle}
               onChange={handleTitleChange}
               onBlur={handleTitleBlur}
             />
-            <textarea
-              className="text-lg leading-7 block px-0 py-2 border-[none] w-full min-h-96 dark:bg-slate-800 dark:text-white"
-              placeholder="Start with typing your text! "
-              value={nowContent}
-              onChange={handleContentChange}
-              onBlur={handleContentBlur}
-            />
+            <Suspense fallback={<p>Loading editor...</p>}>
+              <div className="mdx-editor-container">
+                <EditorComp
+                  markdown={nowContent}
+                  onChange={handleContentChange}
+                  onBlur={handleContentBlur}
+                  id={nowId}
+                />
+              </div>
+            </Suspense>
           </div>
         </div>
       </div>
-      <Comment pageId={nowId} />
+      <div className="w-1/4 border-l border-gray-300 p-4">
+        <h3 className="text-xl font-semibold mb-4">Table of Contents</h3>
+        
+        <Comment pageId={nowId} />
+      </div>
     </div>
   );
 }

@@ -67,7 +67,7 @@ export default function Comment({ pageId }: CommentProps) {
   };
 
   return (
-    <div className="w-1/4 border-l border-gray-300 p-4">
+    <>
       <h3 className="text-xl font-semibold mb-4">Comments</h3>
       <div className="space-y-4">
         {comments.map((comment) => (
@@ -102,6 +102,6 @@ export default function Comment({ pageId }: CommentProps) {
       >
         Submit
       </button>
-    </div>
+    </>
   );
 }
