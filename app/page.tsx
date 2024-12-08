@@ -2,15 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Menu from "./_components/menu";
-import {
-  getPages,
-  getPage,
-  createPage,
-  updatePage,
-  deletePage,
-} from "./actions";
+import { getPages, createPage, updatePage, deletePage } from "./actions";
 import { useSession } from "next-auth/react";
 import Comment from "@/app/_components/Comment";
+import Setting from "./_components/Setting";
 
 export default function Home() {
   const [pages, setPages] = useState<
@@ -21,10 +16,13 @@ export default function Home() {
   const [nowContent, setNowContent] = useState<string>("");
   const [nowPin, setNowPin] = useState<boolean>(false);
 
+  const [font, setFont] = useState<string>("serif");
+
+  // 페이지 데이터를 가져오고 첫 번째 페이지를 초기화
   useEffect(() => {
-    const getPagesAndSet = async (id: number) => {
+    const initializePages = async () => {
       const res = await getPages();
-      if (res) {
+      if (res && res.length > 0) {
         const newPages = Object.fromEntries(
           res.map(({ id, title, content, pin }) => [
             id,
@@ -32,16 +30,17 @@ export default function Home() {
           ])
         );
         setPages(newPages);
-        const nowPage = await getPage(id);
-        if (nowPage) {
-          setNowTitle(nowPage.title);
-          setNowContent(nowPage.content);
-          setNowPin(nowPage.pin);
-        }
+
+        // 첫 번째 페이지 자동 선택
+        const firstPage = res[0];
+        setNowId(firstPage.id);
+        setNowTitle(firstPage.title);
+        setNowContent(firstPage.content);
+        setNowPin(firstPage.pin);
       }
     };
-    getPagesAndSet(nowId);
-  }, [nowId]);
+    initializePages();
+  }, []);
 
   async function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!nowId) {
@@ -108,23 +107,44 @@ export default function Home() {
         Object.entries(prevPages).filter(([key]) => key !== id.toString())
       ),
     }));
+    // 삭제 후 첫 번째 페이지를 자동으로 선택
+    const remainingPages = Object.keys(pages)
+      .filter((key) => key !== id.toString())
+      .map(Number);
+    if (remainingPages.length > 0) {
+      const firstPageId = remainingPages[0];
+      selectPage(firstPageId);
+    } else {
+      // 페이지가 없으면 초기화
+      setNowId(0);
+      setNowTitle("");
+      setNowContent("");
+    }
   };
+
   const selectPage = (id: number) => {
     setNowId(id);
     setNowTitle(pages[id]?.title || "");
     setNowContent(pages[id]?.content || "");
+    setNowPin(pages[id]?.pin || false);
   };
+
   const updatePin = async (id: number) => {
     const newPin = !pages[id].pin;
     await updatePage(id, pages[id].title, pages[id].content, newPin);
+    if (id === nowId) {
+      setNowPin(newPin);
+    }
     setPages((prevPages) => ({
       ...prevPages,
       [id]: { title: pages[id].title, content: pages[id].content, pin: newPin },
     }));
   };
+
   const { data } = useSession();
+
   return (
-    <div className="flex">
+    <div className={"flex dark:bg-slate-800 dark:text-white" + " font-" + font}>
       <Menu
         pageIDs={Object.keys(pages).map(Number)}
         titles={Object.fromEntries(
@@ -141,25 +161,30 @@ export default function Home() {
         switchPin={updatePin}
       />
 
-      <div className="flex justify-center w-full">
-        <div className="w-3/5 max-w-screen-lg py-32">
-          <input
-            className="text-4xl font-bold block mb-4 border-[none] w-full"
-            placeholder="제목"
-            value={nowTitle}
-            onChange={handleTitleChange}
-            onBlur={handleTitleBlur}
-          />
-          <textarea
-            className="text-lg leading-7 block px-0 py-2 border-[none] w-full min-h-96"
-            placeholder="Start with typing your text! "
-            value={nowContent}
-            onChange={handleContentChange}
-            onBlur={handleContentBlur}
-          />
+      <div className="w-full">
+        <div className="flex justify-end">
+          <Setting font={font} setFont={setFont} />
         </div>
-        <Comment pageId={nowId} />
+        <div className="flex justify-center w-full">
+          <div className="w-3/5 max-w-screen-lg py-32">
+            <input
+              className="text-4xl font-bold block mb-4 border-[none] w-full dark:bg-slate-800 dark:text-white"
+              placeholder="제목"
+              value={nowTitle}
+              onChange={handleTitleChange}
+              onBlur={handleTitleBlur}
+            />
+            <textarea
+              className="text-lg leading-7 block px-0 py-2 border-[none] w-full min-h-96 dark:bg-slate-800 dark:text-white"
+              placeholder="Start with typing your text! "
+              value={nowContent}
+              onChange={handleContentChange}
+              onBlur={handleContentBlur}
+            />
+          </div>
+        </div>
       </div>
+      <Comment pageId={nowId} />
     </div>
   );
 }

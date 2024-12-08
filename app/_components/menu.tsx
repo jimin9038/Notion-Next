@@ -35,7 +35,11 @@ export default function Menu({
   session: Session | null;
   switchPin: (id: number) => void;
 }) {
-  const handlePageSelect = (id: number) => {
+  const handlePageSelect = (
+    id: number,
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => {
+    e.stopPropagation();
     setNowId(id);
   };
 
@@ -43,7 +47,7 @@ export default function Menu({
   const unpinnedPages = pageIDs.filter((id) => !pins[id]);
 
   return (
-    <div className="w-60 min-h-screen bg-[rgb(247,247,245)] p-2">
+    <div className="w-60 min-h-screen p-2">
       <div className="mb-4">
         <div className="flex items-center gap-2 h-10 text-sm font-medium px-4 py-2">
           <ProfileImage id={session?.user?.id} />
@@ -68,10 +72,14 @@ export default function Menu({
         {[...pinnedPages, ...unpinnedPages].map((id: number) => (
           <div
             key={id}
-            className={`flex justify-between items-center h-8 text-sm font-semibold text-[#888888] cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 hover:bg-[#ddd] ${
-              id === nowId ? "bg-[#ddd] text-[#007bff]" : ""
+            className={`flex justify-between items-center h-8 text-sm font-semibold cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 dark:hover:bg-slate-950 ${
+              id === nowId
+                ? "bg-[#ddd] dark:bg-slate-950 text-[#007bff] dark:text-sky-400"
+                : ""
             }`}
-            onClick={() => handlePageSelect(id)}
+            onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) =>
+              handlePageSelect(id, e)
+            }
           >
             <button onClick={() => switchPin(id)}>
               {pins[id] ? (
@@ -80,7 +88,9 @@ export default function Menu({
                 <FaStar className="text-transparent hover:text-yellow-400" />
               )}
             </button>
-            {titles[id] || "Untitled"}
+            <div className="ml-1 w-full overflow-hidden">
+              {titles[id] || "Untitled"}
+            </div>
             <DropdownMenu>
               <DropdownMenuTrigger>
                 <MoreHorizontal size="15" />
@@ -99,7 +109,7 @@ export default function Menu({
           </div>
         ))}
         <button
-          className="flex items-center h-8 text-sm font-semibold text-[#888888] cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 hover:bg-[#ddd]"
+          className="flex items-center h-8 text-sm font-semibold text-[#888888] cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 dark:hover:bg-slate-950"
           onClick={addPage}
         >
           New Page

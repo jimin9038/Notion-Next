@@ -78,7 +78,6 @@ export async function createComment(pageId: number, content: string) {
 
   try {
     if (!pageId) {
-      
     }
     return await db.comment.create({
       data: {
@@ -154,5 +153,49 @@ export async function deleteComment(commentId: number) {
   } catch (error) {
     console.error("Error deleting comment:", error);
     throw new Error("Failed to delete comment");
+  }
+}
+
+export async function getSettings() {
+  const session = await auth();
+  if (!session || !session.user || !session.user.id) {
+    redirect("/signIn");
+  }
+
+  try {
+    console.log(session.user.id);
+    const user = await db.user.findUnique({
+      where: { id: Number(session.user.id) },
+      select: { theme: true, font: true },
+    });
+    console.log(user);
+
+    if (!user) {
+      throw new Error("User not found.");
+    }
+
+    return { theme: user.theme || "light", font: user.font || "serif" };
+  } catch (error) {
+    console.error("Error fetching user settings:", error);
+    throw new Error("Failed to fetch user settings.");
+  }
+}
+
+// Update the user's theme and font settings
+export async function updateSettings(theme: string, font: string) {
+  const session = await auth();
+  if (!session || !session.user || !session.user.id) {
+    redirect("/signIn");
+  }
+
+  try {
+    return await db.user.update({
+      where: { id: Number(session.user.id) },
+      data: { theme, font },
+      select: { theme: true, font: true },
+    });
+  } catch (error) {
+    console.error("Error updating user settings:", error);
+    throw new Error("Failed to update user settings.");
   }
 }

@@ -12,6 +12,8 @@ model User {
   username  String   @unique
   password  String
   pages     Page[]
+  theme        String     @default("light") // light or dark
+  font         String     @default("serif") // serif, sans-serif, mono
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   profileImage Bytes?
