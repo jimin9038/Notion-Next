@@ -4,17 +4,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   username: z.string().min(2, {
@@ -28,7 +25,6 @@ const FormSchema = z.object({
 type FormData = z.infer<typeof FormSchema>;
 
 export default function FormPage() {
-  const { toast } = useToast();
   const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -51,32 +47,29 @@ export default function FormPage() {
         body: JSON.stringify({ username, password }),
       });
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        alert("Registration Failed. Please try again.");
+        return;
       }
       // Process response here
-      console.log("Registration Successful", response);
-      toast({ title: "Registration Successful" });
-    } catch (error: any) {
+      alert("Registration Successful!");
+      window.location.href = "/signIn";
+    } catch (error) {
       console.error("Registration Failed:", error);
-      toast({ title: "Registration Failed", description: error.message });
     }
   };
 
   return (
-    <Form {...form} className="w-2/3 space-y-6">
+    <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <FormField
           control={form.control}
           name="username"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mb-4">
               <FormLabel>Username</FormLabel>
               <FormControl>
                 <Input placeholder="Username" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
             </FormItem>
           )}
         />
@@ -84,7 +77,7 @@ export default function FormPage() {
           control={form.control}
           name="password"
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="mb-6">
               <FormLabel>Password</FormLabel>
               <FormControl>
                 <Input placeholder="Password" {...field} type="password" />
@@ -92,7 +85,12 @@ export default function FormPage() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <button
+          type="submit"
+          className="group relative flex w-full justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-slate-500 hover:bg-slate-600 focus:outline-none "
+        >
+          Submit
+        </button>
       </form>
     </Form>
   );

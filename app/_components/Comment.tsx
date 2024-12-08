@@ -68,7 +68,6 @@ export default function Comment({ pageId }: CommentProps) {
 
   return (
     <>
-      <h3 className="text-xl font-semibold mb-4">Comments</h3>
       <div className="space-y-4">
         {comments.map((comment) => (
           <div

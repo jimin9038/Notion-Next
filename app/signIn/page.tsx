@@ -8,11 +8,18 @@ export default function SignIn() {
     const formData = new FormData(event.currentTarget);
     const username = formData.get("username") as string;
     const password = formData.get("password") as string;
-    await signIn("credentials", {
+    const res = await signIn("credentials", {
       username,
       password,
+      redirect: false,
     });
-    window.location.href = "/";
+    console.log(res);
+    if (res && !res.error) {
+      window.location.href = "/";
+    } else {
+      window.location.href = "/signIn";
+      alert("Sign in Failed. Please try again.");
+    }
   }
 
   return (
@@ -57,9 +64,16 @@ export default function SignIn() {
           <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative flex w-full justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-slate-500 hover:bg-slate-600 focus:outline-none "
             >
               Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => (window.location.href = "/signUp")}
+              className="mt-3 group relative flex w-full justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-slate-500 hover:bg-slate-600 focus:outline-none"
+            >
+              Register
             </button>
           </div>
         </form>

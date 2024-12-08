@@ -72,7 +72,7 @@ export default function Menu({
         {[...pinnedPages, ...unpinnedPages].map((id: number) => (
           <div
             key={id}
-            className={`flex justify-between items-center h-8 text-sm font-semibold cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 dark:hover:bg-slate-950 ${
+            className={`flex justify-between items-center h-8 text-sm font-semibold cursor-pointer transition-[background-color] duration-[0.3s] px-4 py-1.5 hover:bg-[#ddd] dark:hover:bg-slate-950 ${
               id === nowId
                 ? "bg-[#ddd] dark:bg-slate-950 text-[#007bff] dark:text-sky-400"
                 : ""

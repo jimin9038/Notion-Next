@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import db from "@/app/db";
 
-export async function GET(req: Request, props: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: Request,
+  props: { params: Promise<{ id: string }> }
+) {
   const params = await props.params;
   const userId = params.id;
 
   try {
-    // 데이터베이스에서 사용자 이미지 가져오기
     const user = await db.user.findUnique({
       where: { id: Number(userId) },
       select: { profileImage: true },
@@ -20,7 +22,6 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       });
     }
 
-    // Blob 데이터를 Base64로 변환
     const base64Image = user.profileImage.toString("base64");
     const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 

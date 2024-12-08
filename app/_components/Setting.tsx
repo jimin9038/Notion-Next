@@ -17,7 +17,7 @@ export default function Setting({
 }) {
   const [theme, setTheme] = useState<string>("light");
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedFont, setSelectedFont] = useState<string>("sans");
+  const [selectedFont, setSelectedFont] = useState<string>(font);
 
   useEffect(() => {
     async function fetchSettings() {
