@@ -10,6 +10,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import { DotIcon } from "lucide-react";
 import { TbTriangleInvertedFilled } from "react-icons/tb";
+import he from "he";
 
 const EditorComp = dynamic(() => import("@/app/_components/MarkdownEditor"), {
   ssr: false,
@@ -63,7 +64,7 @@ export default function Home() {
         .filter((token) => token.type === "heading")
         .map((token) => ({
           level: token.depth,
-          text: token.text,
+          text: he.decode(token.text).trim(), // 디코딩 후 공백 제거
         }));
     };
 
