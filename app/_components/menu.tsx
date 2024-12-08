@@ -12,7 +12,6 @@ import {
 import { ChevronDown, MoreHorizontal } from "lucide-react";
 import { FaStar } from "react-icons/fa";
 import { Session } from "next-auth";
-import { deletePage } from "../actions";
 import ProfileImage from "./profileImage";
 
 export default function Menu({
@@ -23,6 +22,7 @@ export default function Menu({
   addPage,
   session,
   switchPin,
+  deletePage,
   pins,
 }: {
   pageIDs: number[];

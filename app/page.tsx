@@ -123,15 +123,18 @@ export default function Home() {
     setNowId(res.id);
     setNowTitle(res.title);
     setNowContent(res.content);
+    setNowPin(false);
   };
 
   const handleDeletePage = async (id: number) => {
     await deletePage(id);
-    setPages((prevPages) => ({
-      ...Object.fromEntries(
-        Object.entries(prevPages).filter(([key]) => key !== id.toString())
-      ),
-    }));
+    console.log("wefwefwefwef");
+    setPages((prevPages) => {
+      const updatedPages = { ...prevPages };
+      console.log(updatedPages);
+      delete updatedPages[id];
+      return updatedPages;
+    });
     const remainingPages = Object.keys(pages)
       .filter((key) => key !== id.toString())
       .map(Number);
@@ -142,6 +145,7 @@ export default function Home() {
       setNowId(0);
       setNowTitle("");
       setNowContent("");
+      setNowPin(false);
     }
   };
 
