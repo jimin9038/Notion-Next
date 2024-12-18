@@ -27,7 +27,7 @@ export async function getPage(id: number) {
     redirect("/signIn");
   }
   return await db.page.findUnique({
-    where: { id },
+    where: { id, userId: Number(session.user.id) },
   });
 }
 
@@ -37,7 +37,11 @@ export async function getPages() {
     console.log("Not authenticated in getPage");
     redirect("/signIn");
   }
-  return await db.page.findMany();
+  return await db.page.findMany({
+    where: {
+      userId: Number(session.user.id),
+    },
+  });
 }
 
 export async function updatePage(
@@ -50,8 +54,11 @@ export async function updatePage(
   if (!session) {
     throw new Error("Not authenticated");
   }
+  if (!session.user || !session.user.id) {
+    throw new Error("User not found");
+  }
   return await db.page.update({
-    where: { id },
+    where: { id, userId: Number(session.user.id) },
     data: {
       title,
       content,
@@ -66,7 +73,7 @@ export async function deletePage(id: number) {
     throw new Error("Not authenticated");
   }
   return await db.page.delete({
-    where: { id },
+    where: { id, userId: Number(session.user.id) },
   });
 }
 

@@ -29,9 +29,8 @@ export default function Home() {
   const [nowContent, setNowContent] = useState<string>("");
   const [nowPin, setNowPin] = useState<boolean>(false);
   const [headings, setHeadings] = useState<Heading[]>([]);
-  const [showTableOfContents, setShowTableOfContents] =
-    useState<boolean>(false);
-  const [showComment, setShowComment] = useState<boolean>(false);
+  const [showTableOfContents, setShowTableOfContents] = useState<boolean>(true);
+  const [showComment, setShowComment] = useState<boolean>(true);
 
   const [font, setFont] = useState<string>("sans");
 
