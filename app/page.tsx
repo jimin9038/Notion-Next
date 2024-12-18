@@ -32,7 +32,7 @@ export default function Home() {
   const [showTableOfContents, setShowTableOfContents] = useState<boolean>(true);
   const [showComment, setShowComment] = useState<boolean>(true);
 
-  const [font, setFont] = useState<string>("sans");
+  const [font, setFont] = useState<string>("serif");
 
   useEffect(() => {
     const initializePages = async () => {

@@ -8,6 +8,9 @@ import {
   quotePlugin,
   thematicBreakPlugin,
   markdownShortcutPlugin,
+  tablePlugin,
+  codeBlockPlugin,
+  linkPlugin,
 } from "@mdxeditor/editor";
 import { FC, useEffect, useRef } from "react";
 
@@ -50,6 +53,11 @@ const MarkdownEditor: FC<EditorProps> = ({
         quotePlugin(),
         thematicBreakPlugin(),
         markdownShortcutPlugin(),
+        tablePlugin({
+          
+        }),
+        codeBlockPlugin(),
+        linkPlugin(),
       ]}
     />
   );

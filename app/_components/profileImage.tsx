@@ -29,15 +29,15 @@ export default function ProfileImage({ id }: { id?: string }) {
           if (data.success && data.image) {
             setPreviewImage(data.image);
           } else {
-            console.error("Failed to fetch profile image:", data.error);
+            console.log("Failed to fetch profile image:", data.error);
             setPreviewImage("/profile.jpg");
           }
         } else {
-          console.error("Failed to fetch profile image:", response.statusText);
+          console.log("Failed to fetch profile image:", response.statusText);
           setPreviewImage("/profile.jpg");
         }
       } catch (error) {
-        console.error("Error fetching profile image:", error);
+        console.log("Error fetching profile image:", error);
         setPreviewImage("/profile.jpg");
       }
     }
