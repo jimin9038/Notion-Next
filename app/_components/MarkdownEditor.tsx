@@ -11,6 +11,8 @@ import {
   tablePlugin,
   codeBlockPlugin,
   linkPlugin,
+  toolbarPlugin,
+  InsertTable,
 } from "@mdxeditor/editor";
 import { FC, useEffect, useRef } from "react";
 
@@ -53,11 +55,18 @@ const MarkdownEditor: FC<EditorProps> = ({
         quotePlugin(),
         thematicBreakPlugin(),
         markdownShortcutPlugin(),
-        tablePlugin({
-          
-        }),
+        tablePlugin(),
         codeBlockPlugin(),
         linkPlugin(),
+        toolbarPlugin({
+          toolbarClassName: "my-classname",
+          toolbarContents: () => (
+            <>
+              {" "}
+              <InsertTable />
+            </>
+          ),
+        }),
       ]}
     />
   );

@@ -27,10 +27,11 @@ cd <project_directory>
 의존성 설치:
 
 ```
-npm install
+npm install --legacy-peer-deps
 ```
 
 DB Migration
+
 ```
 npx prisma migrate dev
 ```
