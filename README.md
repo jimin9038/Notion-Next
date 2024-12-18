@@ -30,6 +30,11 @@ cd <project_directory>
 npm install
 ```
 
+DB Migration
+```
+npx prisma migrate dev
+```
+
 개발 서버 실행:
 
 ```
